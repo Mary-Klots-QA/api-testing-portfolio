@@ -8,6 +8,7 @@ API testing practice suite built with Postman and (coming: pytest / Playwright).
   - Tests on every request: status code, response time, body schema
   - Chained requests using collection variables
   - Environment file with configurable baseUrl
+-  docs/security-checklist.md — auth and security test checklist
 
 ## How to run
 1. Import `postman/reqres-collection.json` into Postman
