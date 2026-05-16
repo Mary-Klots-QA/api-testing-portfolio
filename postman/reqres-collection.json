@@ -162,7 +162,32 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.collectionVariables.set(\"newUserId\", pm.response.json().id);"
+              "pm.collectionVariables.set(\"newUserId\", pm.response.json().id);",
+              "pm.test(\"TC01: Status 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"TC01: Response has id\", () => {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.id).to.exist;",
+              "    pm.expect(body.name).to.equal(\"Jane Test\");",
+              "    pm.expect(body.job).to.equal(\"Senior QA Engineer\");",
+              "    pm.expect(body.createdAt).to.be.a('string');",
+              "});",
+              "",
+              "pm.test(\"TC18: Response has all expected fields\", () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b).to.have.property('id');",
+              "    pm.expect(b).to.have.property('name');",
+              "    pm.expect(b).to.have.property('job');",
+              "    pm.expect(b).to.have.property('createdAt');",
+              "});",
+              "",
+              "pm.test(\"TC19: id is a string\", () => {",
+              "    pm.expect(pm.response.json().id).to.be.a('string');",
+              "});",
+              "",
+              "pm.test(\"TC20: createdAt is ISO format\", () => {",
+              "    const ts = pm.response.json().createdAt;",
+              "    pm.expect(new Date(ts).toString()).to.not.equal('Invalid Date');",
+              "});"
             ],
             "type": "text/javascript",
             "packages": {},
@@ -181,7 +206,105 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Jane Updated\",\n  \"job\": \"Senior QA Engineer\"\n}",
+          "raw": "{\n  \"name\": \"Jane Test\",\n  \"job\": \"Senior QA Engineer\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create user missing fields",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"TC04: Missing name returns 4xx\", () => {",
+              "    pm.expect(pm.response.code).to.be.within(400, 499);",
+              "});",
+              "// NOTE: Reqres does not enforce required fields.",
+              "// On a real API this would return 400/422.",
+              "// Test documents the expected behaviour, not Reqres behaviour."
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "free_user_3DczDxFp1kXcF5ZCwm4G43LauZG",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"job\": \"QA Engineer\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create user empty string",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"TC10: Empty name string returns 4xx\", () => {",
+              "    pm.expect(pm.response.code).to.be.within(400, 499);",
+              "});",
+              "// NOTE: Reqres accepts empty strings. Real APIs should not."
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "free_user_3DczDxFp1kXcF5ZCwm4G43LauZG",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"QA\",\n  \"job\": \"\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -259,6 +382,22 @@
     },
     {
       "name": "Get created user",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Sensetive data is not returned\", function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body).to.not.have.property('password')",
+              "})"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [
@@ -598,10 +737,11 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Extra fields not reflected back\", function () {",
-              "    const body = pm.response.json();",
-              "    pm.expect(body).to.not.have.property('isAdmin');",
-              "    pm.expect(body).to.not.have.property('role');",
+              "pm.test(\"TC16: Status 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"TC16: Extra fields not in response\", () => {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b).to.not.have.property('isAdmin');",
+              "    pm.expect(b).to.not.have.property('role');",
               "});"
             ],
             "type": "text/javascript",
